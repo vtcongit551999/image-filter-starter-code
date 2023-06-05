@@ -29,9 +29,10 @@
     "shx": "^0.3.4",
     "ts-node-dev": "^1.0.0-pre.40",
     "tslint": "^5.18.0",
-    "typescript": "^3.5.3"
+    "typescript": "^3.9.10"
   },
   "dependencies": {
+    "axios": "^1.4.0",
     "bluebird": "^3.7.2",
     "express": "^4.17.1",
     "jimp": "^0.16.1",
