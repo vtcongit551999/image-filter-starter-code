@@ -1,6 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import {filterImageFromURL, deleteLocalFiles} from './util/util';
+import { filterImageFromURL,filterImageFromURLV2, deleteLocalFiles } from './util/util';
 
 (async () => {
 
@@ -9,7 +9,7 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
 
   // Set the network port
   const port = process.env.PORT || 8082;
-  
+
   // Use the body parser middleware for post requests
   app.use(bodyParser.json());
 
@@ -30,31 +30,46 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   /**************************************************************************** */
 
   //! END @TODO1
-  
+
   // Root Endpoint
   // Displays a simple message to the user
-  app.get( "/", async ( req, res ) => {
+  app.get("/", async (req, res) => {
     res.send("try GET /filteredimage?image_url={{}}")
-  } );
-  
-  app.get( "/filteredimage", async (req:express.Request, res:express.Response) => {
-    const queryString = req.query;
-    const image_url = queryString.image_url
-    console.log(typeof image_url);
-    if (!image_url) {
-      return res.status(400)
-        .send(`image_url is required`);
+  });
+
+  app.get("/filteredimage", async (req: express.Request, res: express.Response) => {
+    try {
+      const {image_url} = req.query;
+      // const image_url = queryString.image_url;
+      const isValidUrl = new URL(image_url as string);
+
+      console.log(typeof image_url);
+      console.log(typeof isValidUrl);
+
+      if (!image_url) {
+        console.log("go in");
+        
+        return res.status(400)
+          .send("Url is required");
+      }
+      const path = await filterImageFromURL(req.query.image_url);
+      res.sendFile(path, function(){
+        deleteLocalFiles([image_url as string]);
+      });
+    } catch (err) {
+      if (err instanceof Error) {
+        res.status(401).json({ message: err.message });
+      }
     }
-    const path = await filterImageFromURL(image_url);
-    res.sendFile(path);
-    res.on('finish', () => deleteLocalFiles([path]));
-    return res.status(200)
-         .send(`${image_url}!`)
+  });
+
+  app.get( "/", async (req: express.Request, res: express.Response) => {
+    res.send("try GET /filteredimage?image_url={{}}");
   } );
 
   // Start the Server
-  app.listen( port, () => {
-      console.log( `server running http://localhost:${ port }` );
-      console.log( `press CTRL+C to stop server` );
-  } );
+  app.listen(port, () => {
+    console.log(`server running http://localhost:${port}`);
+    console.log(`press CTRL+C to stop server`);
+  });
 })();
