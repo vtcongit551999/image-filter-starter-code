@@ -63,10 +63,6 @@ import { filterImageFromURL,filterImageFromURLV2, deleteLocalFiles } from './uti
     }
   });
 
-  app.get( "/", async (req: express.Request, res: express.Response) => {
-    res.send("try GET /filteredimage?image_url={{}}");
-  } );
-
   // Start the Server
   app.listen(port, () => {
     console.log(`server running http://localhost:${port}`);
